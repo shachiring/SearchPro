@@ -2,6 +2,7 @@ import certifi
 import os
 import json
 import random
+import re
 import numpy as np
 import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
@@ -26,6 +27,8 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 TRAINED_DB_PATH = os.path.join(APP_DIR, "db")
 PRODUCTS_JSON = os.path.join(TRAINED_DB_PATH, "products.json")
 IMAGES_DIR = os.path.join(TRAINED_DB_PATH, "images")
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+PLACEHOLDER_IMAGE_RE = re.compile(r"^product_\d{3}\.png$", re.IGNORECASE)
 
 # SSL Certificate setup
 os.environ['SSL_CERT_FILE'] = certifi.where()
@@ -65,6 +68,55 @@ def ensure_product_db(n_products: int = 50):
         json.dump(products, f, indent=2)
 
 
+def list_catalog_images(prefer_real: bool = True) -> list[str]:
+    if not os.path.isdir(IMAGES_DIR):
+        return []
+    files = [
+        name for name in sorted(os.listdir(IMAGES_DIR))
+        if os.path.splitext(name)[1].lower() in IMAGE_EXTENSIONS
+    ]
+    if not prefer_real:
+        return files
+    non_placeholder = [name for name in files if not PLACEHOLDER_IMAGE_RE.match(name)]
+    return non_placeholder if non_placeholder else files
+
+
+def infer_category(filename: str) -> str:
+    stem = os.path.splitext(filename)[0]
+    match = re.match(r"([A-Za-z]+)", stem)
+    if not match:
+        return "Product"
+    return match.group(1).capitalize()
+
+
+def build_products_from_images(images: list[str]) -> list[dict]:
+    products = []
+    for idx, filename in enumerate(images, start=1):
+        category = infer_category(filename)
+        stem = os.path.splitext(filename)[0]
+        display_name = stem.replace("_", " ").replace("-", " ").title()
+        products.append({
+            "id": stem.lower(),
+            "name": display_name,
+            "category": category,
+            "price": 19 + (idx * 5),
+            "image": f"db/images/{filename}"
+        })
+    if products:
+        with open(PRODUCTS_JSON, "w", encoding="utf-8") as f:
+            json.dump(products, f, indent=2)
+    return products
+
+
+def is_placeholder_catalog(products: list[dict]) -> bool:
+    if not products:
+        return True
+    return all(
+        PLACEHOLDER_IMAGE_RE.match(os.path.basename(str(p.get("image", ""))))
+        for p in products
+    )
+
+
 def create_placeholder_image(path: str, title: str, subtitle: str):
     """Generate a simple placeholder product image."""
     try:
@@ -85,10 +137,26 @@ def create_placeholder_image(path: str, title: str, subtitle: str):
 
 
 def load_products():
-    if not os.path.exists(PRODUCTS_JSON):
+    images = list_catalog_images(prefer_real=True)
+
+    products = []
+    if os.path.exists(PRODUCTS_JSON):
+        try:
+            with open(PRODUCTS_JSON, "r", encoding="utf-8") as f:
+                products = json.load(f)
+        except Exception:
+            products = []
+
+    if images:
+        if not products or is_placeholder_catalog(products):
+            return build_products_from_images(images)
+        return products
+
+    if not products:
         ensure_product_db()
-    with open(PRODUCTS_JSON, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        with open(PRODUCTS_JSON, "r", encoding="utf-8") as f:
+            products = json.load(f)
+    return products
 
 
 @st.cache_data(show_spinner=False)

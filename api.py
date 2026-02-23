@@ -1,6 +1,7 @@
 import os
 import io
 import json
+import re
 import requests
 import numpy as np
 from typing import Optional
@@ -27,6 +28,8 @@ IMAGES_DIR = os.path.join(DB_DIR, 'images')
 PRODUCTS_JSON = os.path.join(DB_DIR, 'products.json')
 EMBEDDINGS_NPY = os.path.join(DB_DIR, 'embeddings.npy')
 PRODUCTS_ORDER = os.path.join(DB_DIR, 'products_order.json')
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
+PLACEHOLDER_IMAGE_RE = re.compile(r'^product_\d{3}\.png$', re.IGNORECASE)
 
 app = FastAPI(title="Visual Search API")
 
@@ -46,6 +49,76 @@ app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 model = None
 feature_vectors = None
 products = []
+
+
+def list_catalog_images(prefer_real: bool = True) -> list[str]:
+    if not os.path.isdir(IMAGES_DIR):
+        return []
+    files = [
+        name for name in sorted(os.listdir(IMAGES_DIR))
+        if os.path.splitext(name)[1].lower() in IMAGE_EXTENSIONS
+    ]
+    if not prefer_real:
+        return files
+    non_placeholder = [name for name in files if not PLACEHOLDER_IMAGE_RE.match(name)]
+    return non_placeholder if non_placeholder else files
+
+
+def infer_category(filename: str) -> str:
+    stem = os.path.splitext(filename)[0]
+    match = re.match(r'([A-Za-z]+)', stem)
+    if not match:
+        return 'Product'
+    return match.group(1).capitalize()
+
+
+def build_products_from_images(images: list[str]) -> list[dict]:
+    built = []
+    for idx, filename in enumerate(images, start=1):
+        category = infer_category(filename)
+        stem = os.path.splitext(filename)[0]
+        display_name = stem.replace('_', ' ').replace('-', ' ').title()
+        built.append({
+            'id': stem.lower(),
+            'name': display_name,
+            'category': category,
+            'price': 19 + (idx * 5),
+            'description': f'{category} catalog item {idx}',
+            'image': f'db/images/{filename}'
+        })
+    if built:
+        with open(PRODUCTS_JSON, 'w', encoding='utf-8') as f:
+            json.dump(built, f, indent=2)
+    return built
+
+
+def is_placeholder_catalog(catalog: list[dict]) -> bool:
+    if not catalog:
+        return True
+    return all(
+        PLACEHOLDER_IMAGE_RE.match(os.path.basename(str(p.get('image', ''))))
+        for p in catalog
+    )
+
+
+def load_or_build_products() -> list[dict]:
+    images = list_catalog_images(prefer_real=True)
+    existing = []
+    if os.path.exists(PRODUCTS_JSON):
+        try:
+            with open(PRODUCTS_JSON, 'r', encoding='utf-8') as f:
+                existing = json.load(f)
+        except Exception:
+            existing = []
+
+    if images:
+        if not existing or is_placeholder_catalog(existing):
+            return build_products_from_images(images)
+        return existing
+
+    if existing:
+        return existing
+    return generate_placeholder_products()
 
 
 def load_model():
@@ -131,10 +204,7 @@ def generate_placeholder_products():
 
 def compute_embeddings():
     global feature_vectors, products
-    if not os.path.exists(PRODUCTS_JSON):
-        generate_placeholder_products()
-    with open(PRODUCTS_JSON, 'r', encoding='utf-8') as f:
-        products = json.load(f)
+    products = load_or_build_products()
     features = []
     valid_products = []
     failed_count = 0
@@ -164,9 +234,11 @@ def compute_embeddings():
             feature_vectors = np.vstack(features)
         except Exception:
             feature_vectors = np.array(features)
+        # Keep product metadata aligned with feature vector rows.
+        products = valid_products
         np.save(EMBEDDINGS_NPY, feature_vectors)
         with open(PRODUCTS_ORDER, 'w', encoding='utf-8') as f:
-            json.dump(valid_products, f, indent=2)
+            json.dump(products, f, indent=2)
     else:
         feature_vectors = np.array([])
         print(f"ERROR: No valid embeddings computed!", flush=True)
@@ -239,7 +311,7 @@ async def search(file: Optional[UploadFile] = File(None), url: Optional[str] = F
                 p = products[idx].copy()
                 p['score'] = float(score)
                 # expose image URL
-                p['image_url'] = f"/images/{os.path.basename(p['image'])}"
+                p['image_url'] = f"/images/{os.path.basename(str(p.get('image', '')))}"
                 results.append(p)
         results = sorted(results, key=lambda x: x['score'], reverse=True)[:top_n]
         return {"results": results}
