@@ -8,8 +8,16 @@ from io import BytesIO
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
-from tensorflow.keras.preprocessing import image
+# Try to import TensorFlow/Keras; fall back to a lightweight feature extractor if unavailable
+USE_TF = False
+try:
+    from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
+    from tensorflow.keras.preprocessing import image
+    USE_TF = True
+except Exception:
+    ResNet50 = None
+    preprocess_input = None
+    image = None
 from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -40,7 +48,10 @@ products = []
 def load_model():
     global model
     if model is None:
-        model = ResNet50(weights='imagenet', include_top=False, pooling='avg')
+        if USE_TF:
+            model = ResNet50(weights='imagenet', include_top=False, pooling='avg')
+        else:
+            model = None
     return model
 
 
@@ -50,12 +61,27 @@ def pil_from_bytes(b: bytes) -> Image.Image:
 
 def extract_features_from_pil(img: Image.Image):
     try:
-        img = img.resize((224, 224))
-        arr = image.img_to_array(img)
-        arr = np.expand_dims(arr, axis=0)
-        arr = preprocess_input(arr)
-        preds = model.predict(arr)
-        return preds.flatten()
+        # If TensorFlow/Keras is available, use ResNet50 features
+        if USE_TF and model is not None and image is not None:
+            img = img.resize((224, 224))
+            arr = image.img_to_array(img)
+            arr = np.expand_dims(arr, axis=0)
+            arr = preprocess_input(arr)
+            preds = model.predict(arr)
+            return preds.flatten()
+        # Fallback: use a normalized color histogram (lightweight, no TF required)
+        img_small = img.resize((224, 224))
+        arr = np.array(img_small)
+        # 32 bins per channel -> 96-dim vector
+        hist = []
+        for ch in range(3):
+            h, _ = np.histogram(arr[:, :, ch], bins=32, range=(0, 255))
+            hist.extend(h)
+        hist = np.array(hist).astype('float32')
+        # L1-normalize
+        s = hist.sum() + 1e-9
+        hist = hist / s
+        return hist
     except Exception:
         return None
 
@@ -82,7 +108,11 @@ def compute_embeddings():
         except Exception:
             continue
     if features:
-        feature_vectors = np.vstack(features)
+        # Stack into 2D array (works for both TF and histogram features)
+        try:
+            feature_vectors = np.vstack(features)
+        except Exception:
+            feature_vectors = np.array(features)
         np.save(EMBEDDINGS_NPY, feature_vectors)
         with open(PRODUCTS_ORDER, 'w', encoding='utf-8') as f:
             json.dump(valid_products, f, indent=2)
@@ -93,7 +123,9 @@ def compute_embeddings():
 @app.on_event("startup")
 def startup_event():
     global feature_vectors, products
-    load_model()
+    # Load TF model only if available; otherwise rely on histogram fallback
+    if USE_TF:
+        load_model()
     # load existing embeddings if present
     if os.path.exists(EMBEDDINGS_NPY) and os.path.exists(PRODUCTS_ORDER):
         try:
