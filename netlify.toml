@@ -1,0 +1,32 @@
+[build]
+  command = "echo 'Frontend is static, no build step needed'"
+  publish = "frontend"
+
+[dev]
+  directory = "frontend"
+
+# Proxy API calls to the Render backend
+[[redirects]]
+  from = "/search"
+  to = "https://searchpro-aniq.onrender.com/search"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/images/*"
+  to = "https://searchpro-aniq.onrender.com/images/:splat"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/health"
+  to = "https://searchpro-aniq.onrender.com/health"
+  status = 200
+  force = false
+
+# Handle SPA routing (all routes go to index.html)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+

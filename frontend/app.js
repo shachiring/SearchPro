@@ -8,11 +8,32 @@ const searchBtn = document.getElementById('searchBtn')
 const resultsEl = document.getElementById('results')
 const queryPreview = document.getElementById('queryPreview')
 
+// Auto-detect backend URL
+function detectBackendUrl() {
+  const hostname = window.location.hostname
+  // If on Netlify, use the Render backend URL
+  if (hostname.includes('netlify.app') || hostname.includes('netlify.com')) {
+    return 'https://searchpro-aniq.onrender.com'
+  }
+  // If on localhost/development, use localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:8000'
+  }
+  // Default: use the current origin
+  return window.location.origin
+}
+
+// Set default backend URL
+const defaultBackendUrl = detectBackendUrl()
+if (!apiUrlInput.value.trim()) {
+  apiUrlInput.value = defaultBackendUrl
+}
+
 minScore.addEventListener('input', () => minVal.textContent = parseFloat(minScore.value).toFixed(2))
 
 function getApiBase(){
   const v = apiUrlInput.value.trim()
-  return v || window.location.origin
+  return v || defaultBackendUrl
 }
 
 function setLoading(loading){
