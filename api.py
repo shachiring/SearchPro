@@ -38,6 +38,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Ensure images directory exists before mounting
+os.makedirs(IMAGES_DIR, exist_ok=True)
+
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
 model = None
