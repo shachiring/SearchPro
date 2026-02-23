@@ -2,20 +2,28 @@ import certifi
 import os
 import json
 import random
-import io
 import numpy as np
 import streamlit as st
-import tensorflow as tf
 from PIL import Image, ImageDraw, ImageFont
-from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
-from tensorflow.keras.preprocessing import image
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import Union
 from io import BytesIO
 import requests
 
+# Try TensorFlow/Keras first; fall back to lightweight features if unavailable.
+USE_TF = False
+try:
+    from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
+    from tensorflow.keras.preprocessing import image as keras_image
+    USE_TF = True
+except Exception:
+    ResNet50 = None
+    preprocess_input = None
+    keras_image = None
+
 # Constants
-TRAINED_DB_PATH = "db"
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+TRAINED_DB_PATH = os.path.join(APP_DIR, "db")
 PRODUCTS_JSON = os.path.join(TRAINED_DB_PATH, "products.json")
 IMAGES_DIR = os.path.join(TRAINED_DB_PATH, "images")
 
@@ -24,8 +32,10 @@ os.environ['SSL_CERT_FILE'] = certifi.where()
 
 
 @st.cache_resource
-def load_model() -> tf.keras.Model:
-    return ResNet50(weights='imagenet', include_top=False, pooling='avg')
+def load_model():
+    if USE_TF:
+        return ResNet50(weights='imagenet', include_top=False, pooling='avg')
+    return None
 
 
 def ensure_product_db(n_products: int = 50):
@@ -48,7 +58,7 @@ def ensure_product_db(n_products: int = 50):
             "name": name,
             "category": category,
             "price": price,
-            "image": os.path.relpath(path).replace('\\', '/')
+            "image": os.path.relpath(path, APP_DIR).replace('\\', '/')
         })
 
     with open(PRODUCTS_JSON, 'w', encoding='utf-8') as f:
@@ -82,7 +92,7 @@ def load_products():
 
 
 @st.cache_data(show_spinner=False)
-def get_feature_vectors_from_db(model: tf.keras.Model):
+def get_feature_vectors_from_db(model):
     products = load_products()
     feature_list = []
     valid_products = []
@@ -91,7 +101,8 @@ def get_feature_vectors_from_db(model: tf.keras.Model):
         if not img_path:
             continue
         try:
-            features = extract_features(img_path, model)
+            full_path = resolve_image_path(img_path)
+            features = extract_features(full_path, model)
             if features is not None:
                 feature_list.append(features)
                 valid_products.append(p)
@@ -103,23 +114,47 @@ def get_feature_vectors_from_db(model: tf.keras.Model):
     return feature_vectors, valid_products
 
 
-def extract_features(image_path: Union[str, BytesIO], model: tf.keras.Model) -> Union[np.ndarray, None]:
+def extract_features(image_path: Union[str, BytesIO], model) -> Union[np.ndarray, None]:
     try:
         if isinstance(image_path, BytesIO):
-            img = image.load_img(image_path, target_size=(224, 224))
+            image_path.seek(0)
+            img = Image.open(image_path).convert('RGB')
         else:
-            img = image.load_img(image_path, target_size=(224, 224))
-        img_array = image.img_to_array(img)
-        expanded_img_array = np.expand_dims(img_array, axis=0)
-        preprocessed_img = preprocess_input(expanded_img_array)
-        features = model.predict(preprocessed_img).flatten()
-        return features
+            img = Image.open(image_path).convert('RGB')
+
+        if USE_TF and model is not None and keras_image is not None and preprocess_input is not None:
+            img_resized = img.resize((224, 224))
+            img_array = keras_image.img_to_array(img_resized)
+            expanded_img_array = np.expand_dims(img_array, axis=0)
+            preprocessed_img = preprocess_input(expanded_img_array)
+            features = model.predict(preprocessed_img, verbose=0).flatten()
+            return features
+
+        # Lightweight fallback: normalized RGB histograms (96-dim).
+        img_small = img.resize((224, 224))
+        arr = np.array(img_small)
+        hist = []
+        for ch in range(3):
+            h, _ = np.histogram(arr[:, :, ch], bins=32, range=(0, 255))
+            hist.extend(h)
+        hist = np.array(hist).astype('float32')
+        hist = hist / (hist.sum() + 1e-9)
+        return hist
     except Exception:
         return None
 
 
+def resolve_image_path(image_path: str) -> str:
+    if os.path.isabs(image_path):
+        return image_path
+    candidate = os.path.join(APP_DIR, image_path)
+    if os.path.exists(candidate):
+        return candidate
+    return image_path
+
+
 def find_similar_products(query_image: Union[str, BytesIO], feature_vectors: np.ndarray, products: list[dict],
-                          model: tf.keras.Model, min_score: float = 0.5, top_n: int = 10) -> list[dict]:
+                          model, min_score: float = 0.5, top_n: int = 10) -> list[dict]:
     query_features = extract_features(query_image, model)
     if query_features is None or feature_vectors.size == 0:
         return []
@@ -150,6 +185,8 @@ def main():
 
     ensure_product_db(50)
     model = load_model()
+    if not USE_TF:
+        st.info("TensorFlow is unavailable. Using lightweight image features.")
 
     with st.spinner("Preparing database and features..."):
         feature_vectors, products = get_feature_vectors_from_db(model)
@@ -197,7 +234,7 @@ def main():
                     cols = st.columns([1, 3])
                     with cols[0]:
                         try:
-                            img = Image.open(r['image'])
+                            img = Image.open(resolve_image_path(r['image']))
                             st.image(img, use_column_width=True)
                         except Exception:
                             st.write("[image missing]")
