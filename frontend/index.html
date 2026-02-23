@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>E-commerce Visual Search</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <h1>Visual Product Search</h1>
+    <div id="controls">
+      <label>API Base URL (backend): <input id="apiUrl" placeholder="https://your-backend.example.com" /></label>
+      <input type="file" id="fileInput" accept="image/*" />
+      <input id="urlInput" placeholder="Or paste image URL" />
+      <label>Min similarity: <input id="minScore" type="range" min="0" max="1" step="0.01" value="0.5" /><span id="minVal">0.5</span></label>
+      <label>Max results: <input id="topN" type="number" min="1" max="20" value="10" /></label>
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <section id="queryPreview"></section>
+    <section id="results"></section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

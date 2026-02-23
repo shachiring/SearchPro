@@ -1,6 +1,9 @@
 certifi == 2024.7.4
 pillow == 10.3.0
 streamlit == 1.37.1
+fastapi == 0.99.0
+uvicorn == 0.22.0
+python-multipart == 0.0.6
 scikit-learn == 1.5.1
 tensorflow == 2.16.1
 requests == 2.31.0

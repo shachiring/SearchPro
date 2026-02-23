@@ -3,5 +3,5 @@ WORKDIR /app
 COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED=1
-EXPOSE 8501
-CMD ["sh", "-c", "streamlit run main.py --server.port $PORT --server.headless true --server.enableCORS false"]
+EXPOSE 8000
+CMD ["sh", "-c", "uvicorn api:app --host 0.0.0.0 --port $PORT"]
