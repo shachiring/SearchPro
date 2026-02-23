@@ -1,0 +1,402 @@
+[
+  {
+    "id": "prod_000",
+    "name": "Electronics Product 1",
+    "category": "Electronics",
+    "price": 10,
+    "description": "A nice electronics item #1",
+    "image": "db/images/product_000.png"
+  },
+  {
+    "id": "prod_001",
+    "name": "Fashion Product 2",
+    "category": "Fashion",
+    "price": 15,
+    "description": "A nice fashion item #2",
+    "image": "db/images/product_001.png"
+  },
+  {
+    "id": "prod_002",
+    "name": "Home Product 3",
+    "category": "Home",
+    "price": 20,
+    "description": "A nice home item #3",
+    "image": "db/images/product_002.png"
+  },
+  {
+    "id": "prod_003",
+    "name": "Sports Product 4",
+    "category": "Sports",
+    "price": 25,
+    "description": "A nice sports item #4",
+    "image": "db/images/product_003.png"
+  },
+  {
+    "id": "prod_004",
+    "name": "Books Product 5",
+    "category": "Books",
+    "price": 30,
+    "description": "A nice books item #5",
+    "image": "db/images/product_004.png"
+  },
+  {
+    "id": "prod_005",
+    "name": "Electronics Product 6",
+    "category": "Electronics",
+    "price": 35,
+    "description": "A nice electronics item #6",
+    "image": "db/images/product_005.png"
+  },
+  {
+    "id": "prod_006",
+    "name": "Fashion Product 7",
+    "category": "Fashion",
+    "price": 40,
+    "description": "A nice fashion item #7",
+    "image": "db/images/product_006.png"
+  },
+  {
+    "id": "prod_007",
+    "name": "Home Product 8",
+    "category": "Home",
+    "price": 45,
+    "description": "A nice home item #8",
+    "image": "db/images/product_007.png"
+  },
+  {
+    "id": "prod_008",
+    "name": "Sports Product 9",
+    "category": "Sports",
+    "price": 50,
+    "description": "A nice sports item #9",
+    "image": "db/images/product_008.png"
+  },
+  {
+    "id": "prod_009",
+    "name": "Books Product 10",
+    "category": "Books",
+    "price": 55,
+    "description": "A nice books item #10",
+    "image": "db/images/product_009.png"
+  },
+  {
+    "id": "prod_010",
+    "name": "Electronics Product 11",
+    "category": "Electronics",
+    "price": 60,
+    "description": "A nice electronics item #11",
+    "image": "db/images/product_010.png"
+  },
+  {
+    "id": "prod_011",
+    "name": "Fashion Product 12",
+    "category": "Fashion",
+    "price": 65,
+    "description": "A nice fashion item #12",
+    "image": "db/images/product_011.png"
+  },
+  {
+    "id": "prod_012",
+    "name": "Home Product 13",
+    "category": "Home",
+    "price": 70,
+    "description": "A nice home item #13",
+    "image": "db/images/product_012.png"
+  },
+  {
+    "id": "prod_013",
+    "name": "Sports Product 14",
+    "category": "Sports",
+    "price": 75,
+    "description": "A nice sports item #14",
+    "image": "db/images/product_013.png"
+  },
+  {
+    "id": "prod_014",
+    "name": "Books Product 15",
+    "category": "Books",
+    "price": 80,
+    "description": "A nice books item #15",
+    "image": "db/images/product_014.png"
+  },
+  {
+    "id": "prod_015",
+    "name": "Electronics Product 16",
+    "category": "Electronics",
+    "price": 85,
+    "description": "A nice electronics item #16",
+    "image": "db/images/product_015.png"
+  },
+  {
+    "id": "prod_016",
+    "name": "Fashion Product 17",
+    "category": "Fashion",
+    "price": 90,
+    "description": "A nice fashion item #17",
+    "image": "db/images/product_016.png"
+  },
+  {
+    "id": "prod_017",
+    "name": "Home Product 18",
+    "category": "Home",
+    "price": 95,
+    "description": "A nice home item #18",
+    "image": "db/images/product_017.png"
+  },
+  {
+    "id": "prod_018",
+    "name": "Sports Product 19",
+    "category": "Sports",
+    "price": 100,
+    "description": "A nice sports item #19",
+    "image": "db/images/product_018.png"
+  },
+  {
+    "id": "prod_019",
+    "name": "Books Product 20",
+    "category": "Books",
+    "price": 105,
+    "description": "A nice books item #20",
+    "image": "db/images/product_019.png"
+  },
+  {
+    "id": "prod_020",
+    "name": "Electronics Product 21",
+    "category": "Electronics",
+    "price": 110,
+    "description": "A nice electronics item #21",
+    "image": "db/images/product_020.png"
+  },
+  {
+    "id": "prod_021",
+    "name": "Fashion Product 22",
+    "category": "Fashion",
+    "price": 115,
+    "description": "A nice fashion item #22",
+    "image": "db/images/product_021.png"
+  },
+  {
+    "id": "prod_022",
+    "name": "Home Product 23",
+    "category": "Home",
+    "price": 120,
+    "description": "A nice home item #23",
+    "image": "db/images/product_022.png"
+  },
+  {
+    "id": "prod_023",
+    "name": "Sports Product 24",
+    "category": "Sports",
+    "price": 125,
+    "description": "A nice sports item #24",
+    "image": "db/images/product_023.png"
+  },
+  {
+    "id": "prod_024",
+    "name": "Books Product 25",
+    "category": "Books",
+    "price": 130,
+    "description": "A nice books item #25",
+    "image": "db/images/product_024.png"
+  },
+  {
+    "id": "prod_025",
+    "name": "Electronics Product 26",
+    "category": "Electronics",
+    "price": 135,
+    "description": "A nice electronics item #26",
+    "image": "db/images/product_025.png"
+  },
+  {
+    "id": "prod_026",
+    "name": "Fashion Product 27",
+    "category": "Fashion",
+    "price": 140,
+    "description": "A nice fashion item #27",
+    "image": "db/images/product_026.png"
+  },
+  {
+    "id": "prod_027",
+    "name": "Home Product 28",
+    "category": "Home",
+    "price": 145,
+    "description": "A nice home item #28",
+    "image": "db/images/product_027.png"
+  },
+  {
+    "id": "prod_028",
+    "name": "Sports Product 29",
+    "category": "Sports",
+    "price": 150,
+    "description": "A nice sports item #29",
+    "image": "db/images/product_028.png"
+  },
+  {
+    "id": "prod_029",
+    "name": "Books Product 30",
+    "category": "Books",
+    "price": 155,
+    "description": "A nice books item #30",
+    "image": "db/images/product_029.png"
+  },
+  {
+    "id": "prod_030",
+    "name": "Electronics Product 31",
+    "category": "Electronics",
+    "price": 160,
+    "description": "A nice electronics item #31",
+    "image": "db/images/product_030.png"
+  },
+  {
+    "id": "prod_031",
+    "name": "Fashion Product 32",
+    "category": "Fashion",
+    "price": 165,
+    "description": "A nice fashion item #32",
+    "image": "db/images/product_031.png"
+  },
+  {
+    "id": "prod_032",
+    "name": "Home Product 33",
+    "category": "Home",
+    "price": 170,
+    "description": "A nice home item #33",
+    "image": "db/images/product_032.png"
+  },
+  {
+    "id": "prod_033",
+    "name": "Sports Product 34",
+    "category": "Sports",
+    "price": 175,
+    "description": "A nice sports item #34",
+    "image": "db/images/product_033.png"
+  },
+  {
+    "id": "prod_034",
+    "name": "Books Product 35",
+    "category": "Books",
+    "price": 180,
+    "description": "A nice books item #35",
+    "image": "db/images/product_034.png"
+  },
+  {
+    "id": "prod_035",
+    "name": "Electronics Product 36",
+    "category": "Electronics",
+    "price": 185,
+    "description": "A nice electronics item #36",
+    "image": "db/images/product_035.png"
+  },
+  {
+    "id": "prod_036",
+    "name": "Fashion Product 37",
+    "category": "Fashion",
+    "price": 190,
+    "description": "A nice fashion item #37",
+    "image": "db/images/product_036.png"
+  },
+  {
+    "id": "prod_037",
+    "name": "Home Product 38",
+    "category": "Home",
+    "price": 195,
+    "description": "A nice home item #38",
+    "image": "db/images/product_037.png"
+  },
+  {
+    "id": "prod_038",
+    "name": "Sports Product 39",
+    "category": "Sports",
+    "price": 200,
+    "description": "A nice sports item #39",
+    "image": "db/images/product_038.png"
+  },
+  {
+    "id": "prod_039",
+    "name": "Books Product 40",
+    "category": "Books",
+    "price": 205,
+    "description": "A nice books item #40",
+    "image": "db/images/product_039.png"
+  },
+  {
+    "id": "prod_040",
+    "name": "Electronics Product 41",
+    "category": "Electronics",
+    "price": 210,
+    "description": "A nice electronics item #41",
+    "image": "db/images/product_040.png"
+  },
+  {
+    "id": "prod_041",
+    "name": "Fashion Product 42",
+    "category": "Fashion",
+    "price": 215,
+    "description": "A nice fashion item #42",
+    "image": "db/images/product_041.png"
+  },
+  {
+    "id": "prod_042",
+    "name": "Home Product 43",
+    "category": "Home",
+    "price": 220,
+    "description": "A nice home item #43",
+    "image": "db/images/product_042.png"
+  },
+  {
+    "id": "prod_043",
+    "name": "Sports Product 44",
+    "category": "Sports",
+    "price": 225,
+    "description": "A nice sports item #44",
+    "image": "db/images/product_043.png"
+  },
+  {
+    "id": "prod_044",
+    "name": "Books Product 45",
+    "category": "Books",
+    "price": 230,
+    "description": "A nice books item #45",
+    "image": "db/images/product_044.png"
+  },
+  {
+    "id": "prod_045",
+    "name": "Electronics Product 46",
+    "category": "Electronics",
+    "price": 235,
+    "description": "A nice electronics item #46",
+    "image": "db/images/product_045.png"
+  },
+  {
+    "id": "prod_046",
+    "name": "Fashion Product 47",
+    "category": "Fashion",
+    "price": 240,
+    "description": "A nice fashion item #47",
+    "image": "db/images/product_046.png"
+  },
+  {
+    "id": "prod_047",
+    "name": "Home Product 48",
+    "category": "Home",
+    "price": 245,
+    "description": "A nice home item #48",
+    "image": "db/images/product_047.png"
+  },
+  {
+    "id": "prod_048",
+    "name": "Sports Product 49",
+    "category": "Sports",
+    "price": 250,
+    "description": "A nice sports item #49",
+    "image": "db/images/product_048.png"
+  },
+  {
+    "id": "prod_049",
+    "name": "Books Product 50",
+    "category": "Books",
+    "price": 255,
+    "description": "A nice books item #50",
+    "image": "db/images/product_049.png"
+  }
+]
