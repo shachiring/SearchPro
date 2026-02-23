@@ -169,16 +169,7 @@ def startup_event():
     # Load TF model only if available; otherwise rely on histogram fallback
     if USE_TF:
         load_model()
-    # load existing embeddings if present
-    if os.path.exists(EMBEDDINGS_NPY) and os.path.exists(PRODUCTS_ORDER):
-        try:
-            feature_vectors = np.load(EMBEDDINGS_NPY)
-            with open(PRODUCTS_ORDER, 'r', encoding='utf-8') as f:
-                products = json.load(f)
-            return
-        except Exception:
-            pass
-    # compute embeddings
+    # Always recompute embeddings from products.json to ensure consistency
     compute_embeddings()
 
 
