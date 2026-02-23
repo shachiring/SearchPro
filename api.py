@@ -137,9 +137,11 @@ def compute_embeddings():
         products = json.load(f)
     features = []
     valid_products = []
+    failed_count = 0
     for p in products:
         img_path = p.get('image')
         if not img_path:
+            failed_count += 1
             continue
         full = os.path.join(APP_DIR, img_path)
         try:
@@ -148,8 +150,14 @@ def compute_embeddings():
             if feat is not None:
                 features.append(feat)
                 valid_products.append(p)
-        except Exception:
-            continue
+            else:
+                failed_count += 1
+        except Exception as e:
+            failed_count += 1
+            print(f"Warning: Failed to load {img_path}: {e}", flush=True)
+    
+    print(f"Embeddings computed: {len(features)} valid, {failed_count} failed", flush=True)
+    
     if features:
         # Stack into 2D array (works for both TF and histogram features)
         try:
@@ -161,6 +169,7 @@ def compute_embeddings():
             json.dump(valid_products, f, indent=2)
     else:
         feature_vectors = np.array([])
+        print(f"ERROR: No valid embeddings computed!", flush=True)
 
 
 @app.on_event("startup")
@@ -178,12 +187,32 @@ def health():
     return {"status": "ok"}
 
 
+@app.get('/debug')
+def debug_info():
+    """Debug endpoint to check embeddings and products state"""
+    return {
+        "products_count": len(products),
+        "feature_vectors_shape": feature_vectors.shape if feature_vectors is not None and feature_vectors.size > 0 else None,
+        "feature_vectors_size": feature_vectors.size if feature_vectors is not None else 0,
+        "first_product": products[0] if products else None,
+        "first_feature_vector_sample": feature_vectors[0][:5].tolist() if feature_vectors is not None and feature_vectors.size > 0 else None
+    }
+
+
 @app.post('/search')
 async def search(file: Optional[UploadFile] = File(None), url: Optional[str] = Form(None),
                  min_score: float = Form(0.5), top_n: int = Form(10)):
     global feature_vectors, products
+    
+    # Debug: check embeddings state
     if feature_vectors is None or feature_vectors.size == 0:
-        return {"results": []}
+        return {
+            "error": "No embeddings available",
+            "debug": {
+                "products_loaded": len(products),
+                "feature_vectors_size": 0
+            }
+        }
 
     img_bytes = None
     if file is not None:
