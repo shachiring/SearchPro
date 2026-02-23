@@ -89,10 +89,50 @@ def extract_features_from_pil(img: Image.Image):
         return None
 
 
+def generate_placeholder_products():
+    """Generate placeholder products with simple colored images."""
+    global products
+    os.makedirs(IMAGES_DIR, exist_ok=True)
+    os.makedirs(DB_DIR, exist_ok=True)
+    
+    colors = [
+        (255, 0, 0), (0, 255, 0), (0, 0, 255),
+        (255, 255, 0), (255, 0, 255), (0, 255, 255),
+        (128, 0, 0), (0, 128, 0), (0, 0, 128),
+        (255, 128, 0), (128, 255, 0), (128, 0, 255)
+    ]
+    categories = ['Electronics', 'Fashion', 'Home', 'Sports', 'Books']
+    
+    products = []
+    for i in range(50):
+        color = colors[i % len(colors)]
+        category = categories[i % len(categories)]
+        
+        # Generate a simple colored image
+        img = Image.new('RGB', (100, 100), color=color)
+        img_path = os.path.join(IMAGES_DIR, f'product_{i:03d}.png')
+        img.save(img_path)
+        
+        products.append({
+            'id': f'prod_{i:03d}',
+            'name': f'{category} Product {i+1}',
+            'category': category,
+            'price': 10 + (i * 5),
+            'description': f'A nice {category.lower()} item #{i+1}',
+            'image': f'db/images/product_{i:03d}.png'
+        })
+    
+    # Save products.json
+    with open(PRODUCTS_JSON, 'w', encoding='utf-8') as f:
+        json.dump(products, f, indent=2)
+    
+    return products
+
+
 def compute_embeddings():
     global feature_vectors, products
     if not os.path.exists(PRODUCTS_JSON):
-        raise RuntimeError('products.json missing in db/')
+        generate_placeholder_products()
     with open(PRODUCTS_JSON, 'r', encoding='utf-8') as f:
         products = json.load(f)
     features = []
