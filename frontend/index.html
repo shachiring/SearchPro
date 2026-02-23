@@ -4,23 +4,56 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>E-commerce Visual Search</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main>
-    <h1>Visual Product Search</h1>
-    <div id="controls">
-      <label>API Base URL (backend): <input id="apiUrl" placeholder="https://your-backend.example.com" /></label>
-      <input type="file" id="fileInput" accept="image/*" />
-      <input id="urlInput" placeholder="Or paste image URL" />
-      <label>Min similarity: <input id="minScore" type="range" min="0" max="1" step="0.01" value="0.5" /><span id="minVal">0.5</span></label>
-      <label>Max results: <input id="topN" type="number" min="1" max="20" value="10" /></label>
-      <button id="searchBtn">Search</button>
-    </div>
+  <div class="hero">
+    <div class="container">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">VS</div>
+          <div>
+            <h1>Visual Search</h1>
+            <p class="tag">Find visually similar products instantly</p>
+          </div>
+        </div>
+        <div class="small">Demo • Static frontend + FastAPI backend</div>
+      </header>
 
-    <section id="queryPreview"></section>
-    <section id="results"></section>
-  </main>
+      <section class="search-panel">
+        <div class="controls">
+          <label class="field">Backend URL
+            <input id="apiUrl" placeholder="https://your-backend.example.com" />
+          </label>
+
+          <label class="filebtn">
+            <input type="file" id="fileInput" accept="image/*" />
+            <span>Upload Image</span>
+          </label>
+
+          <input id="urlInput" placeholder="Or paste image URL" />
+
+          <div class="sliders">
+            <label>Min similarity <span id="minVal">0.5</span>
+              <input id="minScore" type="range" min="0" max="1" step="0.01" value="0.5" />
+            </label>
+            <label>Max results
+              <input id="topN" type="number" min="1" max="20" value="10" />
+            </label>
+          </div>
+
+          <button id="searchBtn" class="cta">Search</button>
+        </div>
+
+        <div class="preview" id="queryPreview"></div>
+      </section>
+
+      <section id="results" class="results-grid"></section>
+      <footer class="foot">Tip: set Backend URL to your deployed API and press Search.</footer>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

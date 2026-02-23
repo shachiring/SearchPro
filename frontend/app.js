@@ -8,11 +8,27 @@ const searchBtn = document.getElementById('searchBtn')
 const resultsEl = document.getElementById('results')
 const queryPreview = document.getElementById('queryPreview')
 
-minScore.addEventListener('input', () => minVal.textContent = minScore.value)
+minScore.addEventListener('input', () => minVal.textContent = parseFloat(minScore.value).toFixed(2))
 
 function getApiBase(){
   const v = apiUrlInput.value.trim()
   return v || window.location.origin
+}
+
+function setLoading(loading){
+  if (loading){
+    searchBtn.disabled = true
+    searchBtn.textContent = 'Searching...'
+    searchBtn.classList.add('loading')
+  } else {
+    searchBtn.disabled = false
+    searchBtn.textContent = 'Search'
+    searchBtn.classList.remove('loading')
+  }
+}
+
+function emptyState(msg){
+  resultsEl.innerHTML = `<div class="empty">${msg}</div>`
 }
 
 searchBtn.addEventListener('click', async () => {
@@ -40,35 +56,36 @@ searchBtn.addEventListener('click', async () => {
     reader.readAsDataURL(fileInput.files[0])
   }
 
-  searchBtn.disabled = true
-  searchBtn.textContent = 'Searching...'
+  setLoading(true)
+  emptyState('Searching — please wait...')
   try{
     const res = await fetch(apiBase + '/search', { method: 'POST', body: fd })
     const data = await res.json()
     if (data.error){
-      resultsEl.textContent = data.error
+      emptyState(data.error)
     } else {
       const results = data.results || []
-      if (!results.length) resultsEl.textContent = 'No results'
-      results.forEach(r => {
-        const card = document.createElement('div')
-        card.className = 'card'
-        const img = document.createElement('img')
-        // use absolute URL if apiBase provided
-        const imgUrl = r.image_url.startsWith('/') ? apiBase + r.image_url : r.image_url
-        img.src = imgUrl
-        card.appendChild(img)
-        const meta = document.createElement('div')
-        meta.className = 'meta'
-        meta.innerHTML = `<strong>${r.name}</strong><br/>${r.category} — $${r.price}<br/>Similarity: ${r.score.toFixed(3)}`
-        card.appendChild(meta)
-        resultsEl.appendChild(card)
-      })
+      if (!results.length) emptyState('No results found — try lowering similarity')
+      else {
+        resultsEl.innerHTML = ''
+        results.forEach(r => {
+          const card = document.createElement('div')
+          card.className = 'card'
+          const img = document.createElement('img')
+          const imgUrl = r.image_url.startsWith('/') ? apiBase + r.image_url : r.image_url
+          img.src = imgUrl
+          card.appendChild(img)
+          const meta = document.createElement('div')
+          meta.className = 'meta'
+          meta.innerHTML = `<strong>${r.name}</strong><div class="meta-row">${r.category} • $${r.price} <span class="badge">${r.score.toFixed(3)}</span></div>`
+          card.appendChild(meta)
+          resultsEl.appendChild(card)
+        })
+      }
     }
   }catch(e){
-    resultsEl.textContent = 'Request failed: '+e.message
+    emptyState('Request failed: '+e.message)
   }finally{
-    searchBtn.disabled = false
-    searchBtn.textContent = 'Search'
+    setLoading(false)
   }
 })
