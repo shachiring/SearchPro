@@ -96,3 +96,10 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Local generated artifacts
+tmpclaude-*-cwd/
+deploys.json
+deploy_detail*.json
+services.json
+logs.json
+logs*.txt
