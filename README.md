@@ -1,8 +1,10 @@
 # E-commerce Visual Search
 
-[Live Website](https://searchprod.netlify.app/)
+**Start Here (Live Demo):** [searchprod.netlify.app](https://searchprod.netlify.app/)
 
 Search visually similar products by uploading an image or using an image URL.
+
+Note: Upload an image of a wearable item (T-shirt, jeans, or sandals), set the minimum similarity threshold and number of results, then click Search.
 
 This repository contains:
 - A FastAPI backend (`api.py`) for similarity search.
