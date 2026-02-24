@@ -6,6 +6,8 @@ Search visually similar products by uploading an image or using an image URL.
 
 Note: Upload an image of a wearable item (T-shirt, jeans, or sandals), set the minimum similarity threshold and number of results, then click Search.
 
+Sample query images are available in the repository: [input/](https://github.com/shachiring/SearchPro/tree/main/input).
+
 This repository contains:
 - A FastAPI backend (`api.py`) for similarity search.
 - A static frontend (`frontend/`) that calls the backend.
